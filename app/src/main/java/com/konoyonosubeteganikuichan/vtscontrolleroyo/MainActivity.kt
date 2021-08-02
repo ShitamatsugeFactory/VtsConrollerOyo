@@ -12,7 +12,7 @@ class MainActivity : AppCompatActivity() {
     val pluginName = "ｫｮ~"
     val pluginDeveloper = "この世のすべてが憎いちゃんの栽培は法律で禁止されています"
     val requestId = "oyoyoID"
-    val interval = 100
+    val interval = 60
 
     private var moveX = 0f
     private var moveY = 0f
