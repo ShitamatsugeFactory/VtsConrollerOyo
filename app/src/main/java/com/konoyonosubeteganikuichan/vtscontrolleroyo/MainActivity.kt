@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
+import org.java_websocket.exceptions.WebsocketNotConnectedException
 import java.net.URI
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +24,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+    }
+
+    fun send(request: String) {
+        try {
+            client?.send(request)
+        } catch (e: WebsocketNotConnectedException) {
+            Toast.makeText(this, "error: $e", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onResume() {
@@ -61,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                             "\"requestID\": \"$requestId\"," +
                             "\"messageType\": \"APIStateRequest\"" +
                             "}"
-                    client?.send(startRequest)
+                    send(startRequest)
                 }
                 "AUTH_START" -> {
                     // input your icon (b64 encoded)
@@ -77,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                             "    \"pluginIcon\": \"$icon\"" +
                             "}" +
                             "}"
-                    client?.send(authenticationTokenRequest)
+                    send(authenticationTokenRequest)
                 }
                 "TOKEN_RECEIVED" -> {
                     val token = client?.token
@@ -93,7 +103,7 @@ class MainActivity : AppCompatActivity() {
                             "    \"authenticationToken\": \"${token}\"" +
                             "}" +
                             "}"
-                    client?.send(authenticationRequest)
+                    send(authenticationRequest)
                 }
                 "AUTH_FINISHED" -> {
                     sendMove()
@@ -136,6 +146,6 @@ class MainActivity : AppCompatActivity() {
                 "        \"rotation\": $rot\n" +
                 "    }\n" +
                 "}"
-        client?.send(setParams)
+        send(setParams)
     }
 }
