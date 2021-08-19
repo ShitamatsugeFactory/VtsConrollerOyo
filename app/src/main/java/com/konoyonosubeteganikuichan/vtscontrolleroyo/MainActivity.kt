@@ -1,11 +1,15 @@
 package com.konoyonosubeteganikuichan.vtscontrolleroyo
 
-import androidx.appcompat.app.AppCompatActivity
+import android.Manifest.permission.RECORD_AUDIO
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.java_websocket.exceptions.WebsocketNotConnectedException
 import java.net.URI
 
@@ -20,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private var moveY = 0f
     private var rot = 0f
     var lastSendTime = 0L
+    var soundDetection: SoundDetection? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +41,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        val granted = ContextCompat.checkSelfPermission(this, RECORD_AUDIO)
+        if (granted != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), PERMISSIONS_RECORD_AUDIO)
+        }
+        soundDetection = SoundDetection()
+        soundDetection?.startRecording()
+
+
         val hostEditText = findViewById<EditText>(R.id.hostEditText)
         // input your own VTS web socket address
         hostEditText.setText("ws://192.168.11.7:8001/")  // todo: save to SharedPreferences
@@ -147,5 +160,14 @@ class MainActivity : AppCompatActivity() {
                 "    }\n" +
                 "}"
         send(setParams)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        soundDetection?.stopRecording()
+    }
+
+    companion object {
+        private const val PERMISSIONS_RECORD_AUDIO = 1000
     }
 }
