@@ -36,6 +36,9 @@ class VtsWebSocketClient (val activity: Activity, uri: URI, var stateChangedList
             "AuthenticationResponse" -> {
                 status = "AUTH_FINISHED"
             }
+            "ParameterCreationResponse" -> {
+                status = "RUNNING"
+            }
             "Live2DParameterListResponse" -> {
             }
             // todo: other response types...  https://github.com/DenchiSoft/VTubeStudio

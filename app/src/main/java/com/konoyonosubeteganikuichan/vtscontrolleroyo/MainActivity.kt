@@ -2,6 +2,7 @@ package com.konoyonosubeteganikuichan.vtscontrolleroyo
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.MotionEvent
 import android.widget.Button
 import android.widget.EditText
@@ -104,8 +105,39 @@ class MainActivity : AppCompatActivity() {
                             "}" +
                             "}"
                     send(authenticationRequest)
+
                 }
                 "AUTH_FINISHED" -> {
+                    val addInputParameter = "{\n" +
+                            "\t\"apiName\": \"VTubeStudioPublicAPI\",\n" +
+                            "\t\"apiVersion\": \"1.0\",\n" +
+                            "\t\"requestID\": \"SomeID\",\n" +
+                            "\t\"messageType\": \"ParameterCreationRequest\",\n" +
+                            "\t\"data\": {\n" +
+                            "\t\t\"parameterName\": \"ParamHjX\",\n" +
+                            "\t\t\"explanation\": \"This is my new parameter.\",\n" +
+                            "\t\t\"min\": -30,\n" +
+                            "\t\t\"max\": 30,\n" +
+                            "\t\t\"defaultValue\": 0\n" +
+                            "\t}\n" +
+                            "}"
+                    send(addInputParameter)
+                    val addInputParameterY = "{\n" +
+                            "\t\"apiName\": \"VTubeStudioPublicAPI\",\n" +
+                            "\t\"apiVersion\": \"1.0\",\n" +
+                            "\t\"requestID\": \"SomeID\",\n" +
+                            "\t\"messageType\": \"ParameterCreationRequest\",\n" +
+                            "\t\"data\": {\n" +
+                            "\t\t\"parameterName\": \"ParamHjY\",\n" +
+                            "\t\t\"explanation\": \"This is my new parameter.\",\n" +
+                            "\t\t\"min\": 0,\n" +
+                            "\t\t\"max\": 1,\n" +
+                            "\t\t\"defaultValue\": 0\n" +
+                            "\t}\n" +
+                            "}"
+                    send(addInputParameterY)
+                }
+                "RUNNING" -> {
                     sendMove()
                 }
             }
@@ -120,12 +152,13 @@ class MainActivity : AppCompatActivity() {
                     lastSendTime = now
                     val px = moveX
                     val py = moveY
-                    moveX = e.x / 1000 - 1
-                    moveY = e.y / -1000 + 1
-                    if (moveX > 1) moveX = 1f
-                    if (moveY > 1) moveY = 1f
+                    moveX = (e.x / 1000 - 1) * 30
+                    moveY = (e.y - 1000) / 100
+                    if (moveX > 30) moveX = 30f
+                    if (moveY > 10) moveY = 10f
                     rot = ((Math.atan2(-(moveY - py).toDouble(), (moveX - px).toDouble()).toFloat() + 1.57f) * 180) / 3.14f
                     sendMove()
+                    Log.d("featureHoge", "x: $moveX, y: $moveY")
                 }
             }
         }
@@ -136,15 +169,22 @@ class MainActivity : AppCompatActivity() {
         val setParams = "{\n" +
                 "    \"apiName\": \"VTubeStudioPublicAPI\",\n" +
                 "    \"apiVersion\": \"1.0\",\n" +
-                "    \"requestID\": \"SomeID\",\n" +
-                "    \"messageType\": \"MoveModelRequest\",\n" +
-                "    \"data\": {\n" +
-                "        \"timeInSeconds\": 0.2,\n" +
-                "        \"valuesAreRelativeToModel\": false,\n" +
-                "        \"positionX\": $moveX,\n" +
-                "        \"positionY\": $moveY,\n" +
-                "        \"rotation\": $rot\n" +
-                "    }\n" +
+                "    \"requestID\": \"$requestId\",\n" +
+                "    \"messageType\": \"InjectParameterDataRequest\",\n" +
+                "    \"data\":{" +
+                "        \"parameterValues\": [\n" +
+                "            {\n" +
+                "                \"id\": \"ParamHjX\",\n" +
+                "                \"weight\": 0.166,\n" +
+                "                \"value\": ${moveX * 30}\n" +
+                "            },\n" +
+                "            {\n" +
+                "                \"id\": \"ParamHjY\",\n" +
+                "                \"weight\": 0.16,\n" +
+                "                \"value\": $moveY\n" +
+                "            }\n" +
+                "        ]" +
+                "    }" +
                 "}"
         send(setParams)
     }
